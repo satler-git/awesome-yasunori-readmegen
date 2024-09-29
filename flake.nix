@@ -35,7 +35,7 @@
 
           src = ./.;
           cargoLock.lockFile = ./Cargo.lock;
-        }
+        };
       }
     );
 }
