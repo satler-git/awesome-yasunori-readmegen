@@ -38,7 +38,11 @@ fn make_table(cfg: &Config) -> String {
 }
 
 fn make_markdown_contents(cfg: &Config) -> String {
-    todo!()
+    (&cfg.yasunori)
+        .iter()
+        .map(make_markdown_content)
+        .collect::<Vec<String>>()
+        .join("\n")
 }
 
 fn make_markdown_content(entry: &YasunoriEntry) -> String {
