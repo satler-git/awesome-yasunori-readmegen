@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
 use serde::Deserialize;
-use std::{fs, path::PathBuf};
+use std::fs;
 const TABLE_HEADER: &str = r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
@@ -61,12 +61,12 @@ fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     Ok(Config {
         yasunori: raw.yasunori.iter().map(|yi| YasunoriEntry {
-                title: yi.title.unwrap_or_default(),
-                date: yi.date.unwrap_or_default(),
-                content: yi.content.unwrap_or_default(),
-                meta: yi.meta.unwrap_or_default(),
-                at: yi.at.unwrap_or_default(),
-                senpan: yi.senpan.unwrap_or_default(),
+                title: yi.title.clone().unwrap_or_default(),
+                date: yi.date.clone().unwrap_or_default(),
+                content: yi.content.clone().unwrap_or_default(),
+                meta: yi.meta.clone().unwrap_or_default(),
+                at: yi.at.clone().unwrap_or_default(),
+                senpan: yi.clone().senpan.unwrap_or_default(),
         }).collect()
     })
 }
