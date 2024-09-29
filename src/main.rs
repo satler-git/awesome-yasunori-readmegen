@@ -61,6 +61,7 @@ fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     let mut cfg = Config { yasunori: vec![] };
     for i in raw.yasunori {
+        // TODO: ALL are optional
         if let Some(meta) = i.meta {
             cfg.yasunori.push(YasunoriEntry {
                 title: i.title,
@@ -140,7 +141,6 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    dbg!(&args);
     let toml = fs::read_to_string(args.path).context("File does not exit")?;
     let cfg = entry_from_toml(toml)?;
     println!("{}", make_content_all(&cfg));
