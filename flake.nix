@@ -29,7 +29,7 @@
             pkgs.rust-bin.stable.latest.default
           ];
         };
-        packages.default = rustPlatform.buildRustPackage {
+        packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "readmegen";
           version = "0.1.0";
 
