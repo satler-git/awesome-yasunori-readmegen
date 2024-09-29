@@ -41,12 +41,12 @@ struct YasunoriEntry {
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntryRaw {
-    title: String,
-    date: String, // TODO: chrono
-    content: String,
+    title: Option<String>,
+    date: Option<String>, // TODO: chrono
+    content: Option<String>,
     meta: Option<String>,
-    at: String,
-    senpan: String,
+    at: Option<String>,
+    senpan: Option<String>,
 }
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct ConfigRaw {
@@ -59,30 +59,16 @@ struct Config {
 
 fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
-    let mut cfg = Config { yasunori: vec![] };
-    for i in raw.yasunori {
-        // TODO: ALL are optional
-        if let Some(meta) = i.meta {
-            cfg.yasunori.push(YasunoriEntry {
-                title: i.title,
-                date: i.date,
-                content: i.content,
-                meta: meta,
-                at: i.at,
-                senpan: i.senpan,
-            });
-        } else {
-            cfg.yasunori.push(YasunoriEntry {
-                title: i.title,
-                date: i.date,
-                content: i.content,
-                meta: "".into(),
-                at: i.at,
-                senpan: i.senpan,
-            });
-        }
-    }
-    Ok(cfg)
+    Ok(Config {
+        yasunori: raw.yasunori.iter().map(|yi| YasunoriEntry {
+                title: yi.title.unwrap_or_default(),
+                date: yi.date.unwrap_or_default(),
+                content: yi.content.unwrap_or_default(),
+                meta: yi.meta.unwrap_or_default(),
+                at: yi.at.unwrap_or_default(),
+                senpan: yi.senpan.unwrap_or_default(),
+        }).collect()
+    })
 }
 
 fn make_table(cfg: &Config) -> String {
