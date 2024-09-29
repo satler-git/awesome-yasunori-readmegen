@@ -8,13 +8,15 @@ const TABLE_HEADER: &str = r#"
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
 "#;
 
-const MARKDOWN_HEADER: &str = r#"
-# Awesome yasunori
+const MARKDOWN_HEADER: &str = r#"# Awesome yasunori
 
-A curated list of awesome yasunori, the post about [yasunori0418](https://github.com/yasunori0418). Inspired by [mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
+A curated list of awesome yasunori, the post about
+[yasunori0418](https://github.com/yasunori0418). Inspired by
+[mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
 
 > [!CAUTION]
-> It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use ME([yasunori0418](https://github.com/yasunori0418))!!
+> It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use
+> ME([yasunori0418](https://github.com/yasunori0418))!!
 >
 > お前([takeokunn](https://github.com/takeokunn))が俺([yasunori0418](https://github.com/yasunori0418))で始めた物語だろ！！
 >
@@ -22,8 +24,11 @@ A curated list of awesome yasunori, the post about [yasunori0418](https://github
 
 ## Contributing
 
-Please take a quick gander at the [contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md) first.
-Thanks to all [contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors); you rock!
+Please take a quick gander at the
+[contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md)
+first. Thanks to all
+[contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors);
+you rock!
 
 ## Indexes
 
@@ -109,6 +114,7 @@ fn make_content_all(cfg: &Config) -> String {
     format!(
         "{MARKDOWN_HEADER}{}
 ## Contents
+
 {}
 ",
         make_table(&cfg),

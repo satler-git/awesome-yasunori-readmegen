@@ -290,7 +290,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-template"
+name = "readmegen"
 version = "0.1.0"
 dependencies = [
  "anyhow",
