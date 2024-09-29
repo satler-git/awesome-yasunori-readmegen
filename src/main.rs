@@ -1,9 +1,32 @@
 use anyhow::{Context, Result};
+use camino::Utf8PathBuf;
+use clap::Parser;
 use serde::Deserialize;
-
+use std::{fs, path::PathBuf};
 const TABLE_HEADER: &str = r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
+"#;
+
+const MARKDOWN_HEADER: &str = r#"
+# Awesome yasunori
+
+A curated list of awesome yasunori, the post about [yasunori0418](https://github.com/yasunori0418). Inspired by [mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
+
+> [!CAUTION]
+> It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use ME([yasunori0418](https://github.com/yasunori0418))!!
+>
+> お前([takeokunn](https://github.com/takeokunn))が俺([yasunori0418](https://github.com/yasunori0418))で始めた物語だろ！！
+>
+> by [yasunori0418(原義)](https://github.com/yasunori0418)
+
+## Contributing
+
+Please take a quick gander at the [contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md) first.
+Thanks to all [contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors); you rock!
+
+## Indexes
+
 "#;
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
@@ -17,12 +40,48 @@ struct YasunoriEntry {
 }
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
+struct YasunoriEntryRaw {
+    title: String,
+    date: String, // TODO: chrono
+    content: String,
+    meta: Option<String>,
+    at: String,
+    senpan: String,
+}
+#[derive(Deserialize, Debug, Eq, PartialEq)]
+struct ConfigRaw {
+    yasunori: Vec<YasunoriEntryRaw>,
+}
+#[derive(Deserialize, Debug, Eq, PartialEq)]
 struct Config {
     yasunori: Vec<YasunoriEntry>,
 }
 
 fn entry_from_toml(toml_str: String) -> Result<Config> {
-    toml::from_str(&toml_str).context("Unable to parse the toml")
+    let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
+    let mut cfg = Config { yasunori: vec![] };
+    for i in raw.yasunori {
+        if let Some(meta) = i.meta {
+            cfg.yasunori.push(YasunoriEntry {
+                title: i.title,
+                date: i.date,
+                content: i.content,
+                meta: meta,
+                at: i.at,
+                senpan: i.senpan,
+            });
+        } else {
+            cfg.yasunori.push(YasunoriEntry {
+                title: i.title,
+                date: i.date,
+                content: i.content,
+                meta: "".into(),
+                at: i.at,
+                senpan: i.senpan,
+            });
+        }
+    }
+    Ok(cfg)
 }
 
 fn make_table(cfg: &Config) -> String {
@@ -59,8 +118,33 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
     )
 }
 
-fn main() {
-    println!("Hello, world!");
+fn make_content_all(cfg: &Config) -> String {
+    format!(
+        "{MARKDOWN_HEADER}{}
+## Contents
+{}
+",
+        make_table(&cfg),
+        make_markdown_contents(&cfg)
+    )
+}
+
+/// Simple readme generatar from toml
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to the toml file
+    #[arg(value_name = "FILEPATH", index = 1)]
+    path: Utf8PathBuf,
+}
+
+fn main() -> Result<()> {
+    let args = Args::parse();
+    dbg!(&args);
+    let toml = fs::read_to_string(args.path).context("File does not exit")?;
+    let cfg = entry_from_toml(toml)?;
+    println!("{}", make_content_all(&cfg));
+    Ok(())
 }
 
 #[cfg(test)]
