@@ -66,7 +66,7 @@ fn entry_from_toml(toml_str: String) -> Result<Config> {
                 content: yi.content.clone().unwrap_or_default(),
                 meta: yi.meta.clone().unwrap_or_default(),
                 at: yi.at.clone().unwrap_or_default(),
-                senpan: yi.clone().senpan.unwrap_or_default(),
+                senpan: yi.senpan.clone().unwrap_or_default(),
         }).collect()
     })
 }
