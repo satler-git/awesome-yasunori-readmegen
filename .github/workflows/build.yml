@@ -30,23 +30,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Rust toolchain
-      run: |
-        rustup target add ${{ matrix.target }}
-    - uses: Swatinem/rust-cache@v2
-      with:
-        prefix-key: "v0-rust-${{ matrix.target }}"
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - uses: DeterminateSystems/flake-checker-action@main
     - name: Build
-      run: cargo build --verbose --release
-#    - name: Upload artifacts(Windows)
-#      uses: actions/upload-artifact@v4
-#      if: matrix.os == 'windows-latest'
-#      with:
-#        name: nighty-${{ github.sha }}-${{ matrix.target }}
-#        path: ./target/release/
-#    - name: Upload artifacts(not Windows)
-#      uses: actions/upload-artifact@v4
-#      if: matrix.os != 'windows-latest'
-#      with:
-#        name: nighty-${{ github.sha }}-${{ matrix.target }}
-#        path: ./target/release/
+      run: nix build .
