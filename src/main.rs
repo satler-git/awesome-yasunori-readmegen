@@ -46,7 +46,7 @@ struct YasunoriEntry {
     senpan: String,
 }
 
-#[derive(Deserialize, Debug, Eq, PartialEq)]
+#[derive(Deserialize, Debug, Eq, PartialEq, Clone)]
 struct YasunoriEntryRaw {
     title: String,
     date: NaiveDate,
@@ -71,14 +71,16 @@ fn serialize_naive_date(date: &NaiveDate) -> String {
 fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     Ok(Config {
-        yasunori: raw.yasunori.iter().map(|yi| YasunoriEntry {
+        yasunori: raw.yasunori.iter().map(|yi| {
+        let yi = yi.clone();
+        YasunoriEntry {
                 title: yi.title,
                 date: yi.date,
                 content: yi.content,
-                meta: yi.meta.clone().unwrap_or_default(),
+                meta: yi.meta.unwrap_or_default(),
                 at: yi.at,
                 senpan: yi.senpan,
-        }).collect()
+        }}).collect()
     })
 }
 
