@@ -36,12 +36,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - uses: DeterminateSystems/nix-installer-action@main
     - name: Download toml
       run: curl https://raw.githubusercontent.com/takeokunn/awesome-yasunori/refs/heads/main/yasunori.toml > yasunori.toml
     - name: Generate the md
       run: |
-        nix run github:satler-git/awesome-yasunori-readmegen -- yasunori.toml > yasunori.md
+        nix run . -- yasunori.toml > yasunori.md
     - name: Update as an artifact
       uses: actions/upload-artifact@v4
       with:
