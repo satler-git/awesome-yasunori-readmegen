@@ -109,9 +109,9 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
 ### {} ({})
 
 {} by {}
-``````markdown
-{}
-```
+
+```markdown
+{}```
 {}",
         entry.title, serialize_naive_date(&entry.date), entry.at, entry.senpan, entry.content, entry.meta
     )
