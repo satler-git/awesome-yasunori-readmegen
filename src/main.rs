@@ -3,7 +3,7 @@ use camino::Utf8PathBuf;
 use clap::Parser;
 use serde::Deserialize;
 use std::fs;
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 
 const TABLE_HEADER: &str = r#"
 | date           | senpan            | place                  | title                                                        |
@@ -64,6 +64,10 @@ struct Config {
     yasunori: Vec<YasunoriEntry>,
 }
 
+fn serialize_naive_date(date: &NaiveDate) -> String {
+    format!("{date} {}", date.weekday())
+}
+
 fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     Ok(Config {
@@ -83,7 +87,7 @@ fn make_table(cfg: &Config) -> String {
     for yi in &cfg.yasunori {
         let column = format!(
             "| {} | {} | {} | {} |\n",
-            yi.date, yi.senpan, yi.at, yi.title
+            serialize_naive_date(&yi.date), yi.senpan, yi.at, yi.title
         );
         table_ctx = format!("{table_ctx}{column}");
     }
@@ -108,7 +112,7 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
 
 {}
 {}",
-        entry.title, entry.date, entry.at, entry.senpan, entry.content, entry.meta
+        entry.title, serialize_naive_date(&entry.date), entry.at, entry.senpan, entry.content, entry.meta
     )
 }
 
@@ -143,7 +147,7 @@ fn main() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{make_markdown_content, make_table, Config, YasunoriEntry};
+    use crate::{make_markdown_content, make_table, serialize_naive_date, Config, YasunoriEntry};
 
     use super::entry_from_toml;
     use anyhow::Result;
@@ -227,6 +231,11 @@ memo
 "#
             .to_string()
         );
+        Ok(())
+    }
+    #[test]
+    fn test_serialize_naive_date() -> Result<()> {
+        assert_eq!("2024-09-30 Mon", serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()));
         Ok(())
     }
 }
