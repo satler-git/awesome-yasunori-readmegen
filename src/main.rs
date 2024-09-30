@@ -65,7 +65,7 @@ struct Config {
 }
 
 fn serialize_naive_date(date: &NaiveDate) -> String {
-    format!("{date} {}", date.weekday())
+    format!("{date}")
 }
 
 fn entry_from_toml(toml_str: String) -> Result<Config> {
@@ -207,7 +207,7 @@ Let there be light.\n"
             r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
-| 2024-09-30 Mon | None | vim-jp | Hello |
+| 2024-09-30 | None | vim-jp | Hello |
 "#
         );
         Ok(())
@@ -225,7 +225,7 @@ Let there be light.\n"
                 senpan: "takeokunn".into()
             }),
             r#"
-### brain-yasu**ri (2024-09-29 Sun)
+### brain-yasu**ri (2024-09-29)
 
 vim-jp #times-yasunori by takeokunn
 
@@ -241,7 +241,7 @@ memo
     }
     #[test]
     fn test_serialize_naive_date() -> Result<()> {
-        assert_eq!("2024-09-30 Mon", serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()));
+        assert_eq!("2024-09-30", serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()));
         Ok(())
     }
 }
