@@ -109,8 +109,9 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
 ### {} ({})
 
 {} by {}
-
+``````markdown
 {}
+```
 {}",
         entry.title, serialize_naive_date(&entry.date), entry.at, entry.senpan, entry.content, entry.meta
     )
@@ -225,7 +226,9 @@ Let there be light.\n"
 
 vim-jp #times-yasunori by takeokunn
 
+```markdown
 content
+```
 
 memo
 "#
