@@ -3,6 +3,8 @@ use camino::Utf8PathBuf;
 use clap::Parser;
 use serde::Deserialize;
 use std::fs;
+use chrono::NaiveDate;
+
 const TABLE_HEADER: &str = r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
@@ -37,7 +39,7 @@ you rock!
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntry {
     title: String,
-    date: String, // TODO: chrono
+    date: NaiveDate,
     content: String,
     meta: String,
     at: String,
@@ -47,7 +49,7 @@ struct YasunoriEntry {
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntryRaw {
     title: Option<String>,
-    date: Option<String>, // TODO: chrono
+    date: Option<NaiveDate>,
     content: Option<String>,
     meta: Option<String>,
     at: Option<String>,
@@ -145,6 +147,7 @@ mod tests {
 
     use super::entry_from_toml;
     use anyhow::Result;
+    use chrono::NaiveDate;
     #[test]
     fn test_entry_from_toml() -> Result<()> {
         assert_eq!(
@@ -152,7 +155,7 @@ mod tests {
                 r#"
 [[yasunori]]
 title = "Hello"
-date = "Sooooo long ago"
+date = "2024-09-30"
 at = "Earth"
 senpan = ""
 content = """
@@ -167,7 +170,7 @@ meta = """
             Config {
                 yasunori: vec![YasunoriEntry {
                     title: "Hello".into(),
-                    date: "Sooooo long ago".into(),
+                    date: NaiveDate::from_ymd_opt(2024, 9, 30).unwrap(), // 月曜日
                     content: "yasunori said,
 Let there be light.\n"
                         .into(),
@@ -186,7 +189,7 @@ Let there be light.\n"
             make_table(&Config {
                 yasunori: vec![YasunoriEntry {
                     title: "Hello".into(),
-                    date: "date".into(),
+                    date: NaiveDate::from_ymd_opt(2024, 9, 30).unwrap(),
                     at: "vim-jp".into(),
                     senpan: "None".into(),
                     content: String::new(),
@@ -196,7 +199,7 @@ Let there be light.\n"
             r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
-| date | None | vim-jp | Hello |
+| 2024-09-30 Mon | None | vim-jp | Hello |
 "#
         );
         Ok(())
@@ -207,7 +210,7 @@ Let there be light.\n"
         assert_eq!(
             make_markdown_content(&YasunoriEntry {
                 title: "brain-yasu**ri".into(),
-                date: "2024-09-29 Sun".into(),
+                date: NaiveDate::from_ymd_opt(2024, 9, 29).unwrap(),
                 content: "content\n".into(),
                 meta: "memo\n".into(),
                 at: "vim-jp #times-yasunori".into(),
