@@ -59,12 +59,12 @@ struct YasunoriEntryRaw {
 }
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct ConfigRaw {
-    markdown_header: String
+    markdown_header: String,
     yasunori: Vec<YasunoriEntryRaw>,
 }
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct Config {
-    markdown_header: String
+    markdown_header: String,
     yasunori: Vec<YasunoriEntry>,
 }
 
@@ -133,7 +133,7 @@ fn make_content_all(cfg: &Config) -> String {
 
 {}
 ",
-        cfg.markdown_header,
+        &cfg.markdown_header,
         make_table(&cfg),
         make_markdown_contents(&cfg)
     )
@@ -206,6 +206,7 @@ Let there be light.\n"
     fn test_make_table() -> Result<()> {
         assert_eq!(
             make_table(&Config {
+                markdown_header: String::new(),
                 yasunori: vec![YasunoriEntry {
                     id: 1,
                     title: "Hello".into(),
