@@ -168,6 +168,7 @@ mod tests {
         assert_eq!(
             entry_from_toml(
                 r#"
+markdown_header = ""
 [[yasunori]]
 id = 1
 title = "Hello"
@@ -184,6 +185,7 @@ meta = """
                 .into()
             )?,
             Config {
+                markdown_header: String::new(),
                 yasunori: vec![YasunoriEntry {
                     id: 1,
                     title: "Hello".into(),
