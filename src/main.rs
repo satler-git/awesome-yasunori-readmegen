@@ -10,31 +10,31 @@ const TABLE_HEADER: &str = r#"
 |----|----------------|-------------------|------------------------|--------------------------------------------------------------|
 "#;
 
-const MARKDOWN_HEADER: &str = r#"# Awesome yasunori
+// const MARKDOWN_HEADER: &str = r#"# Awesome yasunori
 
-A curated list of awesome yasunori, the post about
-[yasunori0418](https://github.com/yasunori0418). Inspired by
-[mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
+// A curated list of awesome yasunori, the post about
+// [yasunori0418](https://github.com/yasunori0418). Inspired by
+// [mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
 
-> [!CAUTION]
-> It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use
-> ME([yasunori0418](https://github.com/yasunori0418))!!
->
-> お前([takeokunn](https://github.com/takeokunn))が俺([yasunori0418](https://github.com/yasunori0418))で始めた物語だろ！！
->
-> by [yasunori0418(原義)](https://github.com/yasunori0418)
+// > [!CAUTION]
+// > It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use
+// > ME([yasunori0418](https://github.com/yasunori0418))!!
+// >
+// > お前([takeokunn](https://github.com/takeokunn))が俺([yasunori0418](https://github.com/yasunori0418))で始めた物語だろ！！
+// >
+// > by [yasunori0418(原義)](https://github.com/yasunori0418)
 
-## Contributing
+// ## Contributing
 
-Please take a quick gander at the
-[contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md)
-first. Thanks to all
-[contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors);
-you rock!
+// Please take a quick gander at the
+// [contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md)
+// first. Thanks to all
+// [contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors);
+// you rock!
 
-## Indexes
+// ## Indexes
 
-"#;
+// "#;
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntry {
@@ -59,10 +59,12 @@ struct YasunoriEntryRaw {
 }
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct ConfigRaw {
+    markdown_header: String
     yasunori: Vec<YasunoriEntryRaw>,
 }
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct Config {
+    markdown_header: String
     yasunori: Vec<YasunoriEntry>,
 }
 
@@ -73,6 +75,7 @@ fn serialize_naive_date(date: &NaiveDate) -> String {
 fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     Ok(Config {
+        markdown_header: raw.markdown_header,
         yasunori: raw.yasunori.iter().map(|yi| {
         let yi = yi.clone();
         YasunoriEntry {
@@ -125,11 +128,12 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
 
 fn make_content_all(cfg: &Config) -> String {
     format!(
-        "{MARKDOWN_HEADER}{}
+        "{}{}
 ## Contents
 
 {}
 ",
+        cfg.markdown_header,
         make_table(&cfg),
         make_markdown_contents(&cfg)
     )
