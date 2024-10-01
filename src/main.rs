@@ -1,7 +1,8 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
-use chrono::{Datelike, NaiveDate};
+use chrono::NaiveDate;
 use clap::Parser;
+use regex::Regex;
 use serde::Deserialize;
 use std::fs;
 
@@ -73,8 +74,9 @@ fn make_table(cfg: &Config) -> String {
     let mut table_ctx = String::new(); // TODO: chronoをもとにソートを追加するならここ
     for yi in &cfg.yasunori {
         let column = format!(
-            "| {} | {} | {} | {} | {} |\n",
+            "| [{}]({}) | {} | {} | {} | {} |\n",
             yi.id,
+            make_anchor_link(&yi.title),
             serialize_naive_date(&yi.date),
             yi.senpan,
             yi.at,
@@ -83,6 +85,12 @@ fn make_table(cfg: &Config) -> String {
         table_ctx = format!("{table_ctx}{column}");
     }
     format!("{TABLE_HEADER}{table_ctx}")
+}
+
+fn make_anchor_link(title: &str) -> String {
+    let re = Regex::new(r"[^\w\-一-龥ぁ-んァ-ヶ]").unwrap();
+    let lower_spaceless_title = title.replace(" ", "-").to_lowercase();
+    format!("#{}", re.replace_all(&lower_spaceless_title, "")) // HACK:
 }
 
 fn make_markdown_contents(cfg: &Config) -> String {
@@ -146,7 +154,10 @@ fn main() -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{make_markdown_content, make_table, serialize_naive_date, Config, YasunoriEntry};
+    use crate::{
+        make_anchor_link, make_markdown_content, make_table, serialize_naive_date, Config,
+        YasunoriEntry,
+    };
 
     use super::entry_from_toml;
     use anyhow::Result;
@@ -197,7 +208,7 @@ Let there be light.\n"
                 markdown_header: String::new(),
                 yasunori: vec![YasunoriEntry {
                     id: 1,
-                    title: "Hello".into(),
+                    title: "Hello World!".into(),
                     date: NaiveDate::from_ymd_opt(2024, 9, 30).unwrap(),
                     at: "vim-jp".into(),
                     senpan: "None".into(),
@@ -208,7 +219,7 @@ Let there be light.\n"
             r#"
 | id | date           | senpan            | place                  | title                                                        |
 |----|----------------|-------------------|------------------------|--------------------------------------------------------------|
-| 1 | 2024-09-30 | None | vim-jp | Hello |
+| [1](#hello-world) | 2024-09-30 | None | vim-jp | Hello World! |
 "#
         );
         Ok(())
@@ -237,7 +248,6 @@ content
 
 memo
 "#
-            .to_string()
         );
         Ok(())
     }
@@ -247,6 +257,16 @@ memo
             "2024-09-30",
             serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap())
         );
+        Ok(())
+    }
+    #[test]
+    fn test_make_anchor_link() -> Result<()> {
+        assert_eq!(
+            make_anchor_link("サンプルセクション"),
+            "#サンプルセクション",
+        );
+        assert_eq!(make_anchor_link("テスト! セクション"), "#テスト-セクション",);
+        assert_eq!(make_anchor_link("HELLO WORLD"), "#hello-world");
         Ok(())
     }
 }

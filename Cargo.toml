@@ -8,6 +8,7 @@ anyhow = "1.0.89"
 camino = "1.1.9"
 chrono = { version = "0.4.38", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
+regex = "1.11.0"
 serde = { version = "1.0.210", features = ["derive"] }
 toml = "0.8.19"
 
