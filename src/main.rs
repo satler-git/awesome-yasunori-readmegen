@@ -6,8 +6,8 @@ use std::fs;
 use chrono::{Datelike, NaiveDate};
 
 const TABLE_HEADER: &str = r#"
-| date           | senpan            | place                  | title                                                        |
-|----------------|-------------------|------------------------|--------------------------------------------------------------|
+| id | date           | senpan            | place                  | title                                                        |
+|----|----------------|-------------------|------------------------|--------------------------------------------------------------|
 "#;
 
 const MARKDOWN_HEADER: &str = r#"# Awesome yasunori
@@ -38,6 +38,7 @@ you rock!
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntry {
+    id: u32,
     title: String,
     date: NaiveDate,
     content: String,
@@ -48,6 +49,7 @@ struct YasunoriEntry {
 
 #[derive(Deserialize, Debug, Eq, PartialEq, Clone)]
 struct YasunoriEntryRaw {
+    id: u32,
     title: String,
     date: NaiveDate,
     content: String,
@@ -74,6 +76,7 @@ fn entry_from_toml(toml_str: String) -> Result<Config> {
         yasunori: raw.yasunori.iter().map(|yi| {
         let yi = yi.clone();
         YasunoriEntry {
+                id: yi.id,
                 title: yi.title,
                 date: yi.date,
                 content: yi.content,
@@ -88,8 +91,8 @@ fn make_table(cfg: &Config) -> String {
     let mut table_ctx = String::new(); // TODO: chronoをもとにソートを追加するならここ
     for yi in &cfg.yasunori {
         let column = format!(
-            "| {} | {} | {} | {} |\n",
-            serialize_naive_date(&yi.date), yi.senpan, yi.at, yi.title
+            "| {} | {} | {} | {} | {} |\n",
+            yi.id, serialize_naive_date(&yi.date), yi.senpan, yi.at, yi.title
         );
         table_ctx = format!("{table_ctx}{column}");
     }
@@ -162,6 +165,7 @@ mod tests {
             entry_from_toml(
                 r#"
 [[yasunori]]
+id = 1
 title = "Hello"
 date = "2024-09-30"
 at = "Earth"
@@ -177,6 +181,7 @@ meta = """
             )?,
             Config {
                 yasunori: vec![YasunoriEntry {
+                    id: 1,
                     title: "Hello".into(),
                     date: NaiveDate::from_ymd_opt(2024, 9, 30).unwrap(), // 月曜日
                     content: "yasunori said,
@@ -196,6 +201,7 @@ Let there be light.\n"
         assert_eq!(
             make_table(&Config {
                 yasunori: vec![YasunoriEntry {
+                    id: 1,
                     title: "Hello".into(),
                     date: NaiveDate::from_ymd_opt(2024, 9, 30).unwrap(),
                     at: "vim-jp".into(),
@@ -207,7 +213,7 @@ Let there be light.\n"
             r#"
 | date           | senpan            | place                  | title                                                        |
 |----------------|-------------------|------------------------|--------------------------------------------------------------|
-| 2024-09-30 | None | vim-jp | Hello |
+| 1 | 2024-09-30 | None | vim-jp | Hello |
 "#
         );
         Ok(())
@@ -217,6 +223,7 @@ Let there be light.\n"
     fn test_make_markdown_content() -> Result<()> {
         assert_eq!(
             make_markdown_content(&YasunoriEntry {
+                id: 1,
                 title: "brain-yasu**ri".into(),
                 date: NaiveDate::from_ymd_opt(2024, 9, 29).unwrap(),
                 content: "content\n".into(),
