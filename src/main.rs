@@ -76,7 +76,7 @@ fn make_table(cfg: &Config) -> String {
         let column = format!(
             "| [{}]({}) | {} | {} | {} | {} |\n",
             yi.id,
-            make_anchor_link(&yi.title),
+            make_anchor_link(&yi.title, &yi.date),
             serialize_naive_date(&yi.date),
             yi.senpan,
             yi.at,
@@ -87,10 +87,14 @@ fn make_table(cfg: &Config) -> String {
     format!("{TABLE_HEADER}{table_ctx}")
 }
 
-fn make_anchor_link(title: &str) -> String {
-    let re = Regex::new(r"[^\w\-一-龥ぁ-んァ-ヶ]").unwrap();
-    let lower_spaceless_title = title.replace(" ", "-").to_lowercase();
-    format!("#{}", re.replace_all(&lower_spaceless_title, "")) // HACK:
+fn make_anchor_link(title: &str, date: &NaiveDate) -> String {
+    let re = Regex::new(r#"[!@#$%^&*()+|~=`\[\]{};':",.<>?]|[！”＃＄％＆’（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝～]"#).unwrap(); // 全角記号は変になるかも
+    let lower_spaceless_title = title.replace("　", "-").replace(" ", "-").to_lowercase();
+    format!(
+        "#{}-{}",
+        re.replace_all(&lower_spaceless_title, ""),
+        date.to_string().to_lowercase()
+    ) // HACK:
 }
 
 fn make_markdown_contents(cfg: &Config) -> String {
@@ -219,7 +223,7 @@ Let there be light.\n"
             r#"
 | id | date           | senpan            | place                  | title                                                        |
 |----|----------------|-------------------|------------------------|--------------------------------------------------------------|
-| [1](#hello-world) | 2024-09-30 | None | vim-jp | Hello World! |
+| [1](#hello-world-2024-09-30) | 2024-09-30 | None | vim-jp | Hello World! |
 "#
         );
         Ok(())
@@ -262,11 +266,30 @@ memo
     #[test]
     fn test_make_anchor_link() -> Result<()> {
         assert_eq!(
-            make_anchor_link("サンプルセクション"),
-            "#サンプルセクション",
+            make_anchor_link(
+                "サンプルセクション",
+                &NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()
+            ),
+            "#サンプルセクション-2024-09-30",
         );
-        assert_eq!(make_anchor_link("テスト! セクション"), "#テスト-セクション",);
-        assert_eq!(make_anchor_link("HELLO WORLD"), "#hello-world");
+        assert_eq!(
+            make_anchor_link(
+                "テスト! セクション",
+                &NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()
+            ),
+            "#テスト-セクション-2024-09-30"
+        );
+        assert_eq!(
+            make_anchor_link(
+                "HELLO WORLD",
+                &NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()
+            ),
+            "#hello-world-2024-09-30"
+        );
+        assert_eq!(
+            make_anchor_link("-_!!", &NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()),
+            "#-_-2024-09-30"
+        );
         Ok(())
     }
 }
