@@ -1,40 +1,14 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
+use chrono::{Datelike, NaiveDate};
 use clap::Parser;
 use serde::Deserialize;
 use std::fs;
-use chrono::{Datelike, NaiveDate};
 
 const TABLE_HEADER: &str = r#"
 | id | date           | senpan            | place                  | title                                                        |
 |----|----------------|-------------------|------------------------|--------------------------------------------------------------|
 "#;
-
-// const MARKDOWN_HEADER: &str = r#"# Awesome yasunori
-
-// A curated list of awesome yasunori, the post about
-// [yasunori0418](https://github.com/yasunori0418). Inspired by
-// [mattn/awesome-sonomasakada](https://github.com/mattn/awesome-sonomasakada).
-
-// > [!CAUTION]
-// > It's a story YOU([takeokunn](https://github.com/takeokunn)) started by use
-// > ME([yasunori0418](https://github.com/yasunori0418))!!
-// >
-// > お前([takeokunn](https://github.com/takeokunn))が俺([yasunori0418](https://github.com/yasunori0418))で始めた物語だろ！！
-// >
-// > by [yasunori0418(原義)](https://github.com/yasunori0418)
-
-// ## Contributing
-
-// Please take a quick gander at the
-// [contribution guidelines](https://github.com/takeokunn/awesome-yasunori/blob/master/CONTRIBUTING.md)
-// first. Thanks to all
-// [contributors](https://github.com/takeokunn/awesome-yasunori/graphs/contributors);
-// you rock!
-
-// ## Indexes
-
-// "#;
 
 #[derive(Deserialize, Debug, Eq, PartialEq)]
 struct YasunoriEntry {
@@ -76,17 +50,22 @@ fn entry_from_toml(toml_str: String) -> Result<Config> {
     let raw: ConfigRaw = toml::from_str(&toml_str).context("Unable to parse the toml")?;
     Ok(Config {
         markdown_header: raw.markdown_header,
-        yasunori: raw.yasunori.iter().map(|yi| {
-        let yi = yi.clone();
-        YasunoriEntry {
-                id: yi.id,
-                title: yi.title,
-                date: yi.date,
-                content: yi.content,
-                meta: yi.meta.unwrap_or_default(),
-                at: yi.at,
-                senpan: yi.senpan,
-        }}).collect()
+        yasunori: raw
+            .yasunori
+            .iter()
+            .map(|yi| {
+                let yi = yi.clone();
+                YasunoriEntry {
+                    id: yi.id,
+                    title: yi.title,
+                    date: yi.date,
+                    content: yi.content,
+                    meta: yi.meta.unwrap_or_default(),
+                    at: yi.at,
+                    senpan: yi.senpan,
+                }
+            })
+            .collect(),
     })
 }
 
@@ -95,7 +74,11 @@ fn make_table(cfg: &Config) -> String {
     for yi in &cfg.yasunori {
         let column = format!(
             "| {} | {} | {} | {} | {} |\n",
-            yi.id, serialize_naive_date(&yi.date), yi.senpan, yi.at, yi.title
+            yi.id,
+            serialize_naive_date(&yi.date),
+            yi.senpan,
+            yi.at,
+            yi.title
         );
         table_ctx = format!("{table_ctx}{column}");
     }
@@ -122,7 +105,12 @@ fn make_markdown_content(entry: &YasunoriEntry) -> String {
 {}```
 
 {}",
-        entry.title, serialize_naive_date(&entry.date), entry.at, entry.senpan, entry.content, entry.meta
+        entry.title,
+        serialize_naive_date(&entry.date),
+        entry.at,
+        entry.senpan,
+        entry.content,
+        entry.meta
     )
 }
 
@@ -255,7 +243,10 @@ memo
     }
     #[test]
     fn test_serialize_naive_date() -> Result<()> {
-        assert_eq!("2024-09-30", serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap()));
+        assert_eq!(
+            "2024-09-30",
+            serialize_naive_date(&NaiveDate::from_ymd_opt(2024, 9, 30).unwrap())
+        );
         Ok(())
     }
 }
